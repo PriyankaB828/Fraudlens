@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FraudLens – Scam Detector</title>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <style>
+    :root {
+      --bg-color: #121212;
+      --text-color: #e0e0e0;
+      --section-bg: #1e1e1e;
+      --input-bg: #2b2b2b;
+      --btn-green: #00c853;
+      --btn-red: #d32f2f;
+      --safe-bg: #d0f8ce;
+      --safe-color: #256029;
+      --scam-bg: #ffebee;
+      --scam-color: #b71c1c;
+    }
+    body.light {
+      --bg-color: #f0f2f5;
+      --text-color: #333;
+      --section-bg: #ffffff;
+      --input-bg: #ffffff;
+    }
+    body {
+      margin: 0;
+      background: var(--bg-color);
+      color: var(--text-color);
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2rem;
+    }
+    .toggle-mode {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      padding: 0.4rem 0.6rem;
+      background: #444;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    section {
+      background: var(--section-bg);
+      padding: 1.5rem;
+      border-radius: 10px;
+      margin-bottom: 2rem;
+    }
+    h2 {
+      margin-top: 0;
+    }
+    ul {
+      list-style-type: disc;
+      margin-left: 1.5rem;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 0.6rem;
+      background: var(--input-bg);
+      color: var(--text-color);
+      border: 1px solid #555;
+      border-radius: 5px;
+      margin-top: 1rem;
+      font-size: 1rem;
+    }
+    .btn {
+      margin-top: 1rem;
+      padding: 0.6rem 1rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+    .scan-btn {
+      background: var(--btn-green);
+      color: white;
+    }
+    .clear-btn {
+      background: var(--btn-red);
+      color: white;
+    }
+    .result {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+    .safe {
+      background: var(--safe-bg);
+      color: var(--safe-color);
+    }
+    .scam {
+      background: var(--scam-bg);
+      color: var(--scam-color);
+    }
+    .tip {
+      font-size: 0.9rem;
+      color: #aaa;
+      margin-top: 0.5rem;
+    }
+    #reminder {
+      color: orange;
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+    }
+    #historyList > div {
+      background: white;
+      color: #222;
+      padding: 14px 20px;
+      margin-bottom: 12px;
+      border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+      font-size: 15px;
+    }
+    .history-safe {
+      border-left: 5px solid #00c853;
+    }
+    .history-scam {
+      border-left: 5px solid #d32f2f;
+    }
+    .history-time {
+      font-size: 13px;
+      color: #777;
+      margin-top: 6px;
+    }
+  </style>
+</head>
+<body>
+  <button class="toggle-mode" onclick="toggleTheme()">🌗</button>
+
+  <header>
+    <h1>🔍 FraudLens – Scam Detector</h1>
+  </header>
+
+  <section>
+    <h2>✨ What is FraudLens?</h2>
+    <p>FraudLens is a smart scam detection tool that helps people stay safe on social media. It scans messages, links, and posts to identify suspicious or fraudulent content in real time.</p>
+  </section>
+
+  <section>
+    <h2>✨ Why is it Needed?</h2>
+    <p>Millions of people are targeted by scams daily through WhatsApp, Instagram, and emails. FraudLens helps detect suspicious keywords, risky links, and brand misuse to protect users before it’s too late.</p>
+  </section>
+
+  <section>
+    <h2>✨ How Does It Work?</h2>
+    <p>It uses a list of scam keywords (like “click here”, “you won”, “verify”, etc.), detects risky domains (like .tk, .ru), and alerts if known brand names (like “SBI”, “Aadhaar”) appear in suspicious context.</p>
+  </section>
+
+  <section>
+    <h2>✨ Key Features</h2>
+    <ul>
+      <li>Scan messages/links</li>
+      <li>Detection using risky domains and scam keywords</li>
+      <li>Brand alert (e.g. "SBI", "Aadhaar")</li>
+      <li>Safety tips based on result</li>
+      <li>History saved in localStorage</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Try Scam Detection</h2>
+    <input type="text" id="userInput" placeholder="Paste a message or link here..." />
+    <button class="btn scan-btn" onclick="scan()">Scan</button>
+    <button class="btn clear-btn" onclick="clearAll()">Clear</button>
+
+    <div id="result" class="result hidden"></div>
+    <div id="reminder"></div>
+    <div id="tips" class="tip"></div>
+
+    <h3>📄 Scan History</h3>
+    <div id="historyList"></div>
+  </section>
+
+<script>
+  const scamKeywords = {
+    "click here": 10, "you won": 10, "urgent": 10, "verify": 10,
+    "free": 10, "credit card": 10, "investment": 10,
+    "limited offer": 10, "win": 10
+  };
+
+  const riskyDomains = [".ru", ".tk", ".ml", ".ga", ".cf"];
+  const knownBrands = ["Aadhaar", "SBI", "LIC", "PAN", "Income Tax", "EPFO"];
+  const safeDomains = ["onlinesbi.sbi", "uidai.gov.in", "incometax.gov.in", "epfindia.gov.in"];
+
+  let scanHistory = JSON.parse(localStorage.getItem("fraudScanHistory")) || [];
+
+  function scan() {
+    const rawInput = document.getElementById("userInput").value.trim();
+    const input = rawInput.toLowerCase();
+    let score = 0;
+
+    for (let k in scamKeywords) {
+      if (input.includes(k)) score += scamKeywords[k];
+    }
+
+    const isSafeDomain = safeDomains.some(domain => input.includes(domain));
+    if (/http(s)?:\/\/|www\./i.test(input) && !isSafeDomain) {
+      riskyDomains.forEach(ext => { if (input.includes(ext)) score += 20; });
+    }
+
+    const brandFlag = knownBrands.some(b => input.includes(b.toLowerCase()));
+    if (brandFlag && score > 0) score += 15;
+
+    const isScam = score > 0;
+    const resultDiv = document.getElementById("result");
+    const tips = document.getElementById("tips");
+
+    resultDiv.className = "result " + (isScam ? "scam" : "safe");
+    resultDiv.classList.remove("hidden");
+    resultDiv.textContent = isScam
+      ? "🚨 Scam is detected. Do not open this message or link."
+      : "✅ Safe: No scam detected.";
+    tips.textContent = isScam
+      ? "⚠️ Avoid clicking links or sharing personal info."
+      : "⚠️ But always double-check sources!";
+
+    if (!isScam) confetti();
+
+    const entry = {
+      text: rawInput,
+      isScam: isScam,
+      timestamp: new Date().toLocaleString()
+    };
+
+    scanHistory.push(entry);
+    localStorage.setItem("fraudScanHistory", JSON.stringify(scanHistory));
+    localStorage.setItem("lastScan", Date.now());
+
+    updateHistory();
+    checkReminder();
+  }
+
+  function clearAll() {
+    document.getElementById("userInput").value = "";
+    document.getElementById("result").classList.add("hidden");
+    document.getElementById("tips").textContent = "";
+    scanHistory = [];
+    localStorage.removeItem("fraudScanHistory");
+    updateHistory();
+  }
+
+  function updateHistory() {
+    const list = document.getElementById("historyList");
+    list.innerHTML = "";
+
+    if (scanHistory.length === 0) {
+      list.textContent = "No scan history found.";
+      return;
+    }
+
+    scanHistory.slice().reverse().forEach(entry => {
+      const div = document.createElement("div");
+      div.className = entry.isScam ? "history-scam" : "history-safe";
+
+      const box = document.createElement("div");
+      box.innerHTML = `"<strong>${entry.text}</strong>" → ${
+        entry.isScam
+          ? `🚨 <strong>Scam is detected.</strong> Do not open this message or link.`
+          : `✅ <strong>Safe:</strong> No scam detected.`
+      }`;
+
+      const time = document.createElement("div");
+      time.className = "history-time";
+      time.textContent = `🕒 ${entry.timestamp}`;
+
+      div.appendChild(box);
+      div.appendChild(time);
+      list.appendChild(div);
+    });
+  }
+
+  function checkReminder() {
+    const reminder = document.getElementById("reminder");
+    const last = localStorage.getItem("lastScan");
+    if (!last) return;
+    const diff = Date.now() - parseInt(last);
+    if (diff > 3 * 24 * 60 * 60 * 1000) {
+      reminder.textContent = "⏰ Haven’t scanned anything in 3+ days!";
+    } else {
+      reminder.textContent = "";
+    }
+  }
+
+  function confetti() {
+    confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+  }
+
+  function toggleTheme() {
+    document.body.classList.toggle("light");
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    updateHistory();
+    checkReminder();
+  });
+</script>
+</body>
+</html>
