@@ -1,53 +1,32 @@
 FraudLens – Real-time Scam Detector
-🔹 Overview
+🚀 A web app that helps users detect fraudulent messages and phishing links in real time. FraudLens identifies scam keywords, risky domains, and brand misuse (like SBI or Aadhaar), and provides instant alerts with safety recommendations.
 
-FraudLens is a real-time scam detection web app that helps users identify fraudulent messages and links. It uses keyword detection, brand alerts, and risky domain checks to provide instant results along with safety tips.
+Key Features:
 
-🔹 Features
+🔹 Scan messages/links for scam patterns
 
-Scan messages and links for scam patterns
+🔹 Brand misuse detection (SBI, Aadhaar, etc.)
 
-Detect misuse of trusted brands (e.g., SBI, Aadhaar)
+🔹 Risky domain identification with whitelist check
 
-Identify risky domains and phishing attempts
+🔹 Real-time scam alerts + safety tips
 
-Provide instant scam alerts with explanations
+🔹 Dark/Light mode toggle
 
-Save scan history in local storage
+🔹 Interactive dashboard (bar & pie charts using Chart.js)
 
-Dark/Light mode toggle
+🔹 Persistent scan history via localStorage
 
-Dashboard with interactive bar and pie charts (Chart.js)
+Tech Stack: HTML, CSS, JavaScript, Chart.js, localStorage, Netlify
 
-Real-time detection with safety recommendations
+Future Scope:
 
-🔹 Tech Stack
-
-Frontend: HTML, CSS, JavaScript
-
-Visualization: Chart.js
-
-Storage: localStorage
-
-Hosting: Netlify
-
-🔹 Live Demo
-
-👉 FraudLens Web App        
-
-# Navigate into the project
-cd FraudLens
-
-# Open index.html in browser
-
-🔹 Screenshots
-
-(Add 2–3 screenshots of your homepage, scanner, and dashboard to make it visually appealing.)
-
-🔹 Future Scope
-
-Integration with real-time ML/NLP models for scam intent detection
+ML/NLP-based scam intent detection
 
 Browser extension for WhatsApp/Instagram Web
 
 Mobile app version
+
+👉 [Live Demo Link] - https://fraudlenscam.netlify.app/
+👉 [Screenshots]- https://github.com/user-attachments/assets/6c5ee046-f006-42f6-8105-cc0e6170e5e9 
+                  https://github.com/user-attachments/assets/e5f9f2bb-e2c3-429e-b8bc-30c163c579c6
